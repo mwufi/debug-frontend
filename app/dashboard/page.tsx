@@ -12,6 +12,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { ChatPanel } from "@/components/chat/chat-panel"
+import { ChatHistory } from "@/components/chat/chat-history"
 
 export default function Page() {
   return (
@@ -26,16 +28,18 @@ export default function Page() {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage className="line-clamp-1">
-                    Project Management & Task Tracking
+                    Chat
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <div className="mx-auto h-24 w-full max-w-3xl rounded-xl bg-muted/50" />
-          <div className="mx-auto h-[100vh] w-full max-w-3xl rounded-xl bg-muted/50" />
+        <div className="flex h-[calc(100vh-3.5rem)] flex-col">
+          <div className="flex-1 overflow-auto">
+            <ChatHistory />
+          </div>
+          <ChatPanel />
         </div>
       </SidebarInset>
       <SidebarRight />
