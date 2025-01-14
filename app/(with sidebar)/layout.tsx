@@ -12,10 +12,9 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { ChatPanel } from "@/components/chat/chat-panel"
-import { ChatHistory } from "@/components/chat/chat-history"
+import { ChatCard } from "@/components/chat/chat-card"
 
-export default function Page() {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <SidebarLeft />
@@ -35,14 +34,10 @@ export default function Page() {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-          <div className="flex-1 overflow-auto">
-            <ChatHistory />
-          </div>
-          <ChatPanel />
+        <div className="p-4">
+          <ChatCard />
         </div>
       </SidebarInset>
-      <SidebarRight />
     </SidebarProvider>
   )
 }

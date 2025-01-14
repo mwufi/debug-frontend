@@ -3,13 +3,13 @@ import { Command, AudioWaveform } from "lucide-react"
 export async function getFavorites() {
     const favorites = [
         {
-            name: "Project Management & Task Tracking",
-            url: "#",
+            name: "Sample project",
+            url: "/projects/1",
             emoji: "📊",
         },
         {
-            name: "Family Recipe Collection & Meal Planning",
-            url: "#",
+            name: "Sample chat",
+            url: "/chat/1",
             emoji: "🍳",
         },
         {
@@ -54,7 +54,7 @@ export async function getFavorites() {
         },
     ]
 
-    return favorites.slice(0, 3)
+    return favorites.slice(0, 2)
 }
 
 export async function getWorkspaces() {
