@@ -26,7 +26,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { getSidebarData } from "@/lib/sidebar"
+import { getSidebarData } from "@/lib/getSidebarData"
 
 const { favorites, workspaces, teams } = await getSidebarData()
 

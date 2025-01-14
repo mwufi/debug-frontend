@@ -1,7 +1,7 @@
 import { Command, AudioWaveform } from "lucide-react"
 
 export async function getFavorites() {
-    return [
+    const favorites = [
         {
             name: "Project Management & Task Tracking",
             url: "#",
@@ -53,6 +53,8 @@ export async function getFavorites() {
             emoji: "✅",
         },
     ]
+
+    return favorites.slice(0, 3)
 }
 
 export async function getWorkspaces() {
