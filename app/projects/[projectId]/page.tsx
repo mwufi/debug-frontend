@@ -15,6 +15,10 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Bot, MessageSquare, FileText, Timeline, Plus, Users } from "lucide-react"
+import { AgentsTab } from "./_components/agents-tab"
+import { FilesTab } from "./_components/files-tab"
+import { ConversationsTab } from "./_components/conversations-tab"
+import { TimelineTab } from "./_components/timeline-tab"
 
 export default function ProjectPage({ params }: { params: { projectId: string } }) {
     return (
@@ -132,7 +136,21 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
                             </div>
                         </TabsContent>
 
-                        {/* Other tab contents would go here */}
+                        <TabsContent value="agents">
+                            <AgentsTab projectId={params.projectId} />
+                        </TabsContent>
+
+                        <TabsContent value="files">
+                            <FilesTab />
+                        </TabsContent>
+
+                        <TabsContent value="conversations">
+                            <ConversationsTab />
+                        </TabsContent>
+
+                        <TabsContent value="timeline">
+                            <TimelineTab />
+                        </TabsContent>
                     </Tabs>
                 </div>
             </SidebarInset>
