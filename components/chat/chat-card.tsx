@@ -3,11 +3,12 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Edit2, Maximize2, Minimize2, MoreHorizontal } from "lucide-react"
+import { Edit2, Maximize2, Minimize2, MoreHorizontal, Settings } from "lucide-react"
 import { useState } from "react"
 import { ChatHistory } from "./chat-history"
 import { ChatPanel } from "./chat-panel"
 import { ChatProvider } from "@/lib/chat-context"
+import { useRouter } from "next/navigation"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,6 +18,7 @@ import {
 
 export function ChatCard() {
     const [isExpanded, setIsExpanded] = useState(true)
+    const router = useRouter()
 
     return (
         <ChatProvider>
@@ -39,6 +41,10 @@ export function ChatCard() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => router.push('/settings')}>
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    Settings
+                                </DropdownMenuItem>
                                 <DropdownMenuItem>
                                     <Edit2 className="mr-2 h-4 w-4" />
                                     Edit
