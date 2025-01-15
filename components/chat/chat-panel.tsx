@@ -58,11 +58,15 @@ export function ChatPanel({ showTestMessages }: ChatPanelProps) {
         setIsStreaming(true)
 
         try {
+            let content = ''
             await streamChat(chatId, message, (chunk) => {
+                content += chunk
                 setMessages(prev => {
                     const newMessages = [...prev]
-                    const lastMessage = newMessages[newMessages.length - 1]
-                    lastMessage.content += chunk
+                    newMessages[newMessages.length - 1] = {
+                        role: 'assistant',
+                        content
+                    }
                     return newMessages
                 })
             })

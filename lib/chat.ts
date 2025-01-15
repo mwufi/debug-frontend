@@ -29,6 +29,7 @@ export async function streamChat(chatId: string, message: string, onChunk: (chun
             if (done) break
 
             const chunk = decoder.decode(value)
+            console.log(chunk)
             const lines = chunk.split('\n')
 
             for (const line of lines) {
