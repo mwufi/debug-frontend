@@ -46,7 +46,7 @@ export function ChatHistory({ messages }: ChatHistoryProps) {
                             {message.role === 'assistant' ? (
                                 <ReactMarkdown
                                     remarkPlugins={[remarkGfm]}
-                                    className="prose dark:prose-invert prose-p:my-0 prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-blockquote:my-2 prose-headings:mb-2 prose-headings:mt-4 max-w-none break-words"
+                                    className="prose-sm prose dark:prose-invert prose-p:my-0 prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-blockquote:my-2 prose-headings:mb-2 prose-headings:mt-4 max-w-none break-words py-1"
                                     components={{
                                         code: ({ children, className, ...props }) => {
                                             const match = /language-(\w+)/.exec(className || '')

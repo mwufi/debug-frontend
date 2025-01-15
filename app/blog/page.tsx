@@ -112,7 +112,7 @@ That's all for now! This page helps us test and verify our typography styles.`
 
 export default function BlogPage() {
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 max-w-screen-md">
             <article className="prose dark:prose-invert prose-pre:bg-muted prose-pre:text-muted-foreground prose-code:bg-muted prose-code:text-muted-foreground prose-blockquote:border-muted-foreground/20 prose-a:text-primary prose-a:no-underline hover:prose-a:underline mx-auto">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {sampleMarkdown}

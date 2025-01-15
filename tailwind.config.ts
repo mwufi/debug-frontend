@@ -152,6 +152,39 @@ export default {
 						}
 					}
 				}
+				,
+				'sm': {
+					css: {
+						'h1': {
+							'font-size': '1.5em',
+							'font-weight': '600',
+							'margin-top': '0.5em',
+							'margin-bottom': '0.3em'
+						},
+						'h2': {
+							'font-size': '1.25em',
+							'font-weight': '600',
+							'margin-top': '0.4em',
+							'margin-bottom': '0.2em'
+						},
+						'h3': {
+							'font-size': '1.1em',
+							'font-weight': '600',
+							'margin-top': '0.3em',
+							'margin-bottom': '0.2em'
+						},
+						'h4': {
+							'font-size': '1em',
+							'font-weight': '600',
+							'margin-top': '0.2em',
+							'margin-bottom': '0.1em'
+						},
+						'p': {
+							'margin-top': '0.2em',
+							'margin-bottom': '0.2em'
+						}
+					}
+				}
 			}
 		}
 	},
