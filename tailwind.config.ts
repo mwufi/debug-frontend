@@ -65,6 +65,93 @@ export default {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			typography: {
+				DEFAULT: {
+					css: {
+						'max-width': 'none',
+						color: 'hsl(var(--foreground))',
+						'line-height': '1.5',
+						'> *': {
+							'margin-top': '0.75em',
+							'margin-bottom': '0'
+						},
+						'h1, h2, h3, h4': {
+							'margin-top': '1em',
+							'margin-bottom': '0.5em',
+							'line-height': '1.3'
+						},
+						'p': {
+							'margin-top': '0.3em',
+							'margin-bottom': '0.3em'
+						},
+						'pre': {
+							'margin-top': '0.3em',
+							'margin-bottom': '0.3em',
+							'padding': '0.5em',
+							'background-color': 'hsl(var(--secondary))',
+							'border-radius': 'calc(var(--radius) - 2px)',
+							'overflow-x': 'auto'
+						},
+						'code': {
+							'background-color': 'hsl(var(--secondary))',
+							'border-radius': 'calc(var(--radius) - 4px)',
+							'padding': '0.2em 0.4em',
+							'font-size': '0.875em'
+						},
+						'code::before': { content: '""' },
+						'code::after': { content: '""' },
+						'ul, ol': {
+							'margin-top': '0.3em',
+							'margin-bottom': '0.3em',
+							'padding-left': '1.2em'
+						},
+						'li': {
+							'margin-top': '0.1em',
+							'margin-bottom': '0.1em',
+							'padding-left': '0.2em'
+						},
+						'li > p': {
+							'margin-top': '0.1em',
+							'margin-bottom': '0.1em'
+						},
+						'blockquote': {
+							'margin-top': '0.5em',
+							'margin-bottom': '0.5em',
+							'padding-left': '1em',
+							'border-left': '2px solid hsl(var(--border))',
+							'font-style': 'italic',
+							'color': 'hsl(var(--muted-foreground))'
+						},
+						'blockquote p:first-of-type::before': { content: '""' },
+						'blockquote p:last-of-type::after': { content: '""' },
+						'a': {
+							'color': 'hsl(var(--primary))',
+							'text-decoration': 'none',
+							'font-weight': '500',
+							'&:hover': {
+								'text-decoration': 'underline'
+							}
+						},
+						'hr': {
+							'margin-top': '0.5em',
+							'margin-bottom': '0.5em',
+							'border-color': 'hsl(var(--border))'
+						},
+						'table': {
+							'margin-top': '0.3em',
+							'margin-bottom': '0.3em'
+						},
+						'thead th': {
+							'padding': '0.3em 0.5em',
+							'border-bottom': '1px solid hsl(var(--border))'
+						},
+						'tbody td': {
+							'padding': '0.3em 0.5em',
+							'border-bottom': '1px solid hsl(var(--border))'
+						}
+					}
+				}
 			}
 		}
 	},

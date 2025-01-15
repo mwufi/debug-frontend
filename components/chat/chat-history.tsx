@@ -24,14 +24,14 @@ export function ChatHistory({ messages }: ChatHistoryProps) {
                         </AvatarFallback>
                     </Avatar>
                     <div
-                        className={`rounded-lg px-4 py-2 max-w-[80%] ${message.role === 'user'
+                        className={`mb-4 rounded-lg px-4 py-2 max-w-[80%] ${message.role === 'user'
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
                             }`}
                     >
                         {message.role === 'assistant' ? <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
-                            className="prose prose-sm max-w-none break-words whitespace-pre-wrap"
+                            className="prose dark:prose-invert prose-pre:bg-muted prose-pre:text-muted-foreground prose-code:bg-muted prose-code:text-muted-foreground prose-blockquote:border-muted-foreground/20 prose-a:text-primary prose-a:no-underline hover:prose-a:underline mx-auto mb-3"
                             components={{
                                 code: ({ children, className, ...props }) => {
                                     const match = /language-(\w+)/.exec(className || '')
