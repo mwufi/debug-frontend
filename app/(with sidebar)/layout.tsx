@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar"
 import { ChatCard } from "@/components/chat/chat-card"
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children, title }: { children: React.ReactNode, title: string }) {
   return (
     <SidebarProvider>
       <SidebarLeft />
@@ -27,7 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage className="line-clamp-1">
-                    Chat
+                    {title}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -35,7 +35,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
         <div className="p-4">
-          <ChatCard />
+          {children}
         </div>
       </SidebarInset>
     </SidebarProvider>
