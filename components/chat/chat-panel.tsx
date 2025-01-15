@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { SendHorizontal } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef } from "react"
 import { Message, streamChat } from "@/lib/chat"
 import { useParams } from "next/navigation"
 import { ChatHistory } from "@/components/chat/chat-history"
+import { useChatContext } from "@/lib/chat-context"
 
 interface ChatPanelProps {
     showTestMessages: boolean
@@ -15,32 +16,10 @@ interface ChatPanelProps {
 
 export function ChatPanel({ showTestMessages }: ChatPanelProps) {
     const [message, setMessage] = useState('')
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            role: 'assistant',
-            content: 'Hello! How can I help you today?'
-        }
-    ])
-    const [isStreaming, setIsStreaming] = useState(false)
+    const { messages, setMessages, isStreaming, setIsStreaming } = useChatContext()
     const params = useParams()
     const chatId = params.chatId as string
     const textareaRef = useRef<HTMLTextAreaElement>(null)
-
-    // Generate test messages when showTestMessages changes
-    useEffect(() => {
-        if (showTestMessages) {
-            const testMessages: Message[] = Array.from({ length: 100 }, (_, i) => ({
-                role: i % 2 === 0 ? 'user' : 'assistant',
-                content: `Test message ${i + 1}`
-            }))
-            setMessages(testMessages)
-        } else {
-            setMessages([{
-                role: 'assistant',
-                content: 'Hello! How can I help you today?'
-            }])
-        }
-    }, [showTestMessages])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -48,11 +27,11 @@ export function ChatPanel({ showTestMessages }: ChatPanelProps) {
 
         // Add user message
         const userMessage: Message = { role: 'user', content: message }
-        setMessages(prev => [...prev, userMessage])
+        setMessages([...messages, userMessage])
 
         // Add empty assistant message that will be streamed
         const assistantMessage: Message = { role: 'assistant', content: '' }
-        setMessages(prev => [...prev, assistantMessage])
+        setMessages([...messages, userMessage, assistantMessage])
 
         setMessage('')
         setIsStreaming(true)
@@ -61,7 +40,7 @@ export function ChatPanel({ showTestMessages }: ChatPanelProps) {
             let content = ''
             await streamChat(chatId, message, (chunk) => {
                 content += chunk
-                setMessages(prev => {
+                setMessages((prev: Message[]) => {
                     const newMessages = [...prev]
                     newMessages[newMessages.length - 1] = {
                         role: 'assistant',

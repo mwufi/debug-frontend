@@ -12,6 +12,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { ChatCard } from "@/components/chat/chat-card"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
@@ -31,6 +32,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
+                    </div>
+                    <div className="mx-4">
+                        <ThemeToggle />
                     </div>
                 </header>
                 <div className="p-4">
