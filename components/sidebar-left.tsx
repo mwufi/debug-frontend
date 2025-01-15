@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
   Blocks,
   Calendar,
   Command,
@@ -51,9 +50,9 @@ const data = {
       isActive: true,
     },
     {
-      title: "Inbox",
-      url: "#",
-      icon: Inbox,
+      title: "Integrations",
+      url: "/integrations",
+      icon: Command,
       badge: "10",
     },
   ],
