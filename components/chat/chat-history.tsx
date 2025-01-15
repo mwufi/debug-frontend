@@ -21,7 +21,7 @@ export function ChatHistory({ messages }: ChatHistoryProps) {
                         </AvatarFallback>
                     </Avatar>
                     <div
-                        className={`rounded-lg px-4 py-2 max-w-[80%] ${message.role === 'user'
+                        className={`rounded-lg px-4 py-2 max-w-[80%] whitespace-pre-wrap ${message.role === 'user'
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
                             }`}
