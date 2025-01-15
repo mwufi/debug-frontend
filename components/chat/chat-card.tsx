@@ -59,10 +59,7 @@ export function ChatCard() {
             {isExpanded && (
                 <CardContent className="p-0">
                     <div className="flex h-[calc(100vh-12rem)] flex-col">
-                        <div className="flex-1 overflow-auto">
-                            <ChatHistory />
-                        </div>
-                        <ChatPanel />
+                        <ChatPanel showTestMessages={false} />
                     </div>
                 </CardContent>
             )}

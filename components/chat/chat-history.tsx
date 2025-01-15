@@ -1,33 +1,19 @@
 'use client'
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Message } from "@/lib/chat"
 
-interface Message {
-    id: string
-    content: string
-    role: 'user' | 'assistant'
-    timestamp: Date
+interface ChatHistoryProps {
+    messages: Message[]
 }
 
-export function ChatHistory() {
-    // This would normally come from your state management
-    const messages: Message[] = [
-        {
-            id: '1',
-            content: 'Hello! How can I help you today?',
-            role: 'assistant',
-            timestamp: new Date(),
-        },
-        // Add more messages as needed
-    ]
-
+export function ChatHistory({ messages }: ChatHistoryProps) {
     return (
         <div className="space-y-4 p-4">
-            {messages.map((message) => (
+            {messages.map((message, index) => (
                 <div
-                    key={message.id}
-                    className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''
-                        }`}
+                    key={index}
+                    className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
                 >
                     <Avatar className="h-8 w-8">
                         <AvatarFallback>
@@ -36,8 +22,8 @@ export function ChatHistory() {
                     </Avatar>
                     <div
                         className={`rounded-lg px-4 py-2 max-w-[80%] ${message.role === 'user'
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
                             }`}
                     >
                         {message.content}
