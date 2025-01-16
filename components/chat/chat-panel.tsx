@@ -37,25 +37,27 @@ export function ChatPanel({ conversation }: ChatPanelProps) {
 
         // Add user message
         const userMessage: Message = { role: 'user', content: message }
-        const newMessages = [...messages, userMessage]
-        setMessages(newMessages)
-
-        // Add empty assistant message that will be streamed
-        const assistantMessage: Message = { role: 'assistant', content: '' }
-        setMessages([...newMessages, assistantMessage])
+        const updatedMessages = [...messages, userMessage]
+        setMessages(updatedMessages)
 
         setIsStreaming(true)
 
         try {
             let content = ''
+            const assistantMessage: Message = { role: 'assistant', content: '' }
+
+            // Add empty assistant message that will be streamed
+            const messagesWithAssistant = [...updatedMessages, assistantMessage]
+            setMessages(messagesWithAssistant)
+
             await streamChat(chatId, message, (chunk) => {
                 content += chunk
-                const updated = [...messages]
-                updated[updated.length - 1] = {
+                const latestMessages = [...messagesWithAssistant]
+                latestMessages[latestMessages.length - 1] = {
                     role: 'assistant',
                     content
                 }
-                setMessages(updated)
+                setMessages(latestMessages)
             })
         } catch (error) {
             console.error('Error streaming chat:', error)
