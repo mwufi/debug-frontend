@@ -12,7 +12,7 @@ interface ChatSettings {
 
 interface ChatContextType {
     messages: Message[]
-    setMessages: (messages: Message[]) => void
+    setMessages: (messagesOrUpdater: Message[] | ((prev: Message[]) => Message[])) => void
     isStreaming: boolean
     setIsStreaming: (isStreaming: boolean) => void
     settings: ChatSettings
@@ -40,7 +40,7 @@ function loadSettings(): ChatSettings {
 }
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
-    const [messages, setMessages] = useState<Message[]>([{
+    const [messages, setMessagesState] = useState<Message[]>([{
         role: 'assistant',
         content: 'Hello! How can I help you today?'
     }])
@@ -56,6 +56,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         localStorage.setItem('chatSettings', JSON.stringify(settings))
     }, [settings])
+
+    // Wrapper for setMessages that handles both direct value and updater function
+    const setMessages = (messagesOrUpdater: Message[] | ((prev: Message[]) => Message[])) => {
+        if (typeof messagesOrUpdater === 'function') {
+            setMessagesState(prev => messagesOrUpdater(prev))
+        } else {
+            setMessagesState(messagesOrUpdater)
+        }
+    }
 
     const updateSettings = (newSettings: Partial<ChatSettings>) => {
         setSettings(prev => {

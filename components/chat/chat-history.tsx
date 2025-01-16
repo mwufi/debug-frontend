@@ -1,10 +1,9 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Message } from "@/lib/chat"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import type { Components } from 'react-markdown'
 
 interface ChatHistoryProps {
     messages: Message[]
