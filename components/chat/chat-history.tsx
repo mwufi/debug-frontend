@@ -39,45 +39,11 @@ export function ChatHistory({ messages }: ChatHistoryProps) {
                                 ${isLastInGroup ? (isUser ? 'rounded-bl-2xl' : 'rounded-br-2xl') : ''}
                                 ${!isFirstInGroup && !isLastInGroup ? '' : ''}
                                 ${isUser ? 'bg-primary text-primary-foreground rounded-l-2xl' : 'bg-muted rounded-r-2xl'}
-                                px-4 py-2 max-w-[80%]
+                                px-4 py-2 max-w-[80%] whitespace-pre-wrap
                             `}
                         >
                             {message.role === 'assistant' ? (
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm]}
-                                    className="prose-sm prose dark:prose-invert prose-p:my-0 prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-blockquote:my-2 prose-headings:mb-2 prose-headings:mt-4 max-w-none break-words py-1"
-                                    components={{
-                                        code: ({ children, className, ...props }) => {
-                                            const match = /language-(\w+)/.exec(className || '')
-                                            return match ? (
-                                                <code className={className} {...props}>
-                                                    {children}
-                                                </code>
-                                            ) : (
-                                                <code className="bg-secondary/50 px-1 py-0.5 rounded-sm" {...props}>
-                                                    {children}
-                                                </code>
-                                            )
-                                        },
-                                        pre: ({ children, ...props }) => (
-                                            <pre className="bg-secondary/50 p-3 rounded-lg overflow-auto" {...props}>
-                                                {children}
-                                            </pre>
-                                        ),
-                                        a: ({ href, children }) => (
-                                            <a
-                                                href={href}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-                                            >
-                                                {children}
-                                            </a>
-                                        )
-                                    }}
-                                >
-                                    {message.content}
-                                </ReactMarkdown>
+                                message.content
                             ) : (
                                 message.content
                             )}
