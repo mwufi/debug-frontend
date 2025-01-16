@@ -19,23 +19,36 @@ export type ChatEvent = {
 }
 
 export class WebSocketChat {
+    private static instance: WebSocketChat | null = null
     private ws: WebSocket | null = null
     private chatId: string
     private messageCallback: (event: ChatEvent) => void
-    private url: string
+    private url: string = 'ws://localhost:8000/v2/chat'
     private retryCount: number = 0
     private maxRetries: number = 5
     private isConnecting: boolean = false
+    private messageQueue: any[] = []
 
-    constructor(chatId: string, onMessage: (event: ChatEvent) => void) {
+    private constructor(chatId: string, onMessage: (event: ChatEvent) => void) {
         this.chatId = chatId
         this.messageCallback = onMessage
-        this.url = `ws://localhost:8000/v2/chat/${chatId}`
+    }
+
+    static getInstance(chatId: string, onMessage: (event: ChatEvent) => void): WebSocketChat {
+        if (!WebSocketChat.instance) {
+            WebSocketChat.instance = new WebSocketChat(chatId, onMessage)
+        } else {
+            // Update the callback but keep the same instance
+            WebSocketChat.instance.messageCallback = onMessage
+        }
+        return WebSocketChat.instance
     }
 
     connect() {
         if (this.ws?.readyState === WebSocket.OPEN) {
-            return // Already connected
+            // If already connected, just switch to the new chat
+            this.switchChat(this.chatId)
+            return
         }
 
         if (this.isConnecting) {
@@ -53,11 +66,15 @@ export class WebSocketChat {
         this.ws.onopen = () => {
             this.isConnecting = false
             this.retryCount = 0 // Reset retry count on successful connection
-            this.messageCallback({
-                type: 'connect',
-                timestamp: new Date().toISOString(),
-                chat_id: this.chatId
-            })
+
+            // Send initial chat ID after connection
+            this.switchChat(this.chatId)
+
+            // Process any queued messages
+            while (this.messageQueue.length > 0) {
+                const data = this.messageQueue.shift()
+                this.send(data)
+            }
         }
 
         this.ws.onmessage = (event) => {
@@ -76,23 +93,20 @@ export class WebSocketChat {
 
         this.ws.onclose = () => {
             this.isConnecting = false
-            this.messageCallback({
-                type: 'disconnect',
-                timestamp: new Date().toISOString(),
-                chat_id: this.chatId
-            })
+            this.ws = null
 
-            // Implement exponential backoff for retries
+            // Only notify if this wasn't a clean shutdown
             if (this.retryCount < this.maxRetries) {
+                this.messageCallback({
+                    type: 'disconnect',
+                    timestamp: new Date().toISOString(),
+                    chat_id: this.chatId
+                })
+
+                // Implement exponential backoff for retries
                 const backoffTime = Math.min(1000 * Math.pow(2, this.retryCount), 10000)
                 this.retryCount++
                 setTimeout(() => this.connect(), backoffTime)
-            } else {
-                this.messageCallback({
-                    type: 'error',
-                    error: 'Failed to establish WebSocket connection after multiple attempts',
-                    timestamp: new Date().toISOString()
-                })
             }
         }
 
@@ -106,29 +120,57 @@ export class WebSocketChat {
         }
     }
 
-    sendMessage(content: string) {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+    switchChat(newChatId: string) {
+        this.chatId = newChatId
+        if (this.ws?.readyState === WebSocket.OPEN) {
             this.ws.send(JSON.stringify({
-                type: 'message',
-                content
+                type: 'switch_chat',
+                chat_id: newChatId
             }))
         } else {
-            console.error('WebSocket is not connected')
+            // Queue the switch chat message if not connected
+            this.messageQueue.push({
+                type: 'switch_chat',
+                chat_id: newChatId
+            })
+            this.connect()
         }
     }
 
     send(data: any) {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify(data))
+        const messageWithChatId = {
+            ...data,
+            chat_id: this.chatId
+        }
+
+        if (this.ws?.readyState === WebSocket.OPEN) {
+            this.ws.send(JSON.stringify(messageWithChatId))
         } else {
-            console.error('WebSocket is not connected')
+            // Queue message if not connected
+            this.messageQueue.push(messageWithChatId)
+            this.connect()
         }
     }
 
+    sendMessage(content: string) {
+        this.send({
+            type: 'message',
+            content
+        })
+    }
+
     disconnect() {
+        this.retryCount = this.maxRetries // Prevent reconnection attempts
         if (this.ws) {
             this.ws.close()
             this.ws = null
+        }
+    }
+
+    static cleanup() {
+        if (WebSocketChat.instance) {
+            WebSocketChat.instance.disconnect()
+            WebSocketChat.instance = null
         }
     }
 }

@@ -47,85 +47,88 @@ export function ChatPanel({ conversation }: ChatPanelProps) {
 
     useEffect(() => {
         // Initialize WebSocket connection
-        const ws = new WebSocketChat(chatId, handleWebSocketMessage)
+        const handleWebSocketMessage = (event: ChatEvent) => {
+            // Add event to history
+            setEvents(prev => [event, ...prev])
+
+            switch (event.type) {
+                case 'connect':
+                    setIsConnected(true)
+                    break
+                case 'disconnect':
+                    setIsConnected(false)
+                    setHasAgent(false)
+                    break
+                case 'message_received':
+                    // Message has been received by the server
+                    break
+                case 'convo-reset':
+                    setMessages([])
+                    toast.success('Conversation reset')
+                    break
+                case 'error':
+                    toast.error(event.error || 'An error occurred', {
+                        description: event.details,
+                        duration: 5000
+                    })
+                    setIsStreaming(false)
+                    setHasAgent(false)
+                    break
+                case 'text_delta':
+                    if (event.delta) {
+                        currentMessageRef.current += event.delta
+                        setMessages(prevMessages => {
+                            const lastMessage = prevMessages[prevMessages.length - 1]
+                            if (lastMessage?.role === 'assistant') {
+                                return [
+                                    ...prevMessages.slice(0, -1),
+                                    {
+                                        ...lastMessage,
+                                        content: currentMessageRef.current,
+                                        timestamp: event.timestamp
+                                    }
+                                ]
+                            } else {
+                                return [
+                                    ...prevMessages,
+                                    {
+                                        role: 'assistant',
+                                        content: currentMessageRef.current,
+                                        timestamp: event.timestamp
+                                    }
+                                ]
+                            }
+                        })
+                    }
+                    break
+                case 'tool_use_called':
+                    toast.info(`Tool used: ${event.name}`, {
+                        description: JSON.stringify(event.args, null, 2)
+                    })
+                    break
+                case 'agent_joined':
+                    setIsStreaming(true)
+                    setHasAgent(true)
+                    currentMessageRef.current = ''
+                    break
+                case 'agent_left':
+                    setIsStreaming(false)
+                    setHasAgent(false)
+                    break
+            }
+        }
+
+        const ws = WebSocketChat.getInstance(chatId, handleWebSocketMessage)
         wsRef.current = ws
         ws.connect()
 
         return () => {
-            ws.disconnect()
+            // Don't disconnect, just switch rooms if needed
+            if (wsRef.current) {
+                wsRef.current = null
+            }
         }
-    }, [chatId])
-
-    const handleWebSocketMessage = (event: ChatEvent) => {
-        // Add event to history
-        setEvents(prev => [event, ...prev])
-
-        switch (event.type) {
-            case 'connect':
-                setIsConnected(true)
-                break
-            case 'disconnect':
-                setIsConnected(false)
-                setHasAgent(false)
-                break
-            case 'message_received':
-                // Message has been received by the server
-                break
-            case 'convo-reset':
-                setMessages([])
-                toast.success('Conversation reset')
-                break
-            case 'error':
-                toast.error(event.error || 'An error occurred', {
-                    description: event.details,
-                    duration: 5000
-                })
-                setIsStreaming(false)
-                setHasAgent(false)
-                break
-            case 'text_delta':
-                if (event.delta) {
-                    currentMessageRef.current += event.delta
-                    setMessages(prevMessages => {
-                        const lastMessage = prevMessages[prevMessages.length - 1]
-                        if (lastMessage?.role === 'assistant') {
-                            return [
-                                ...prevMessages.slice(0, -1),
-                                {
-                                    ...lastMessage,
-                                    content: currentMessageRef.current,
-                                    timestamp: event.timestamp
-                                }
-                            ]
-                        } else {
-                            return [
-                                ...prevMessages,
-                                {
-                                    role: 'assistant',
-                                    content: currentMessageRef.current,
-                                    timestamp: event.timestamp
-                                }
-                            ]
-                        }
-                    })
-                }
-                break
-            case 'tool_use_called':
-                toast.info(`Tool used: ${event.name}`, {
-                    description: JSON.stringify(event.args, null, 2)
-                })
-                break
-            case 'agent_joined':
-                setIsStreaming(true)
-                setHasAgent(true)
-                currentMessageRef.current = ''
-                break
-            case 'agent_left':
-                setIsStreaming(false)
-                setHasAgent(false)
-                break
-        }
-    }
+    }, [chatId, setMessages, setIsStreaming])
 
     const handleSendMessage = async (message: string) => {
         if (!message.trim() || isStreaming) return
