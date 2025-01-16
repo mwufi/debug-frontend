@@ -23,6 +23,9 @@ export class WebSocketChat {
     private chatId: string
     private messageCallback: (event: ChatEvent) => void
     private url: string
+    private retryCount: number = 0
+    private maxRetries: number = 5
+    private isConnecting: boolean = false
 
     constructor(chatId: string, onMessage: (event: ChatEvent) => void) {
         this.chatId = chatId
@@ -31,11 +34,31 @@ export class WebSocketChat {
     }
 
     connect() {
-        if (this.ws) {
-            this.ws.close()
+        if (this.ws?.readyState === WebSocket.OPEN) {
+            return // Already connected
         }
 
+        if (this.isConnecting) {
+            return // Already trying to connect
+        }
+
+        if (this.ws) {
+            this.ws.close()
+            this.ws = null
+        }
+
+        this.isConnecting = true
         this.ws = new WebSocket(this.url)
+
+        this.ws.onopen = () => {
+            this.isConnecting = false
+            this.retryCount = 0 // Reset retry count on successful connection
+            this.messageCallback({
+                type: 'connect',
+                timestamp: new Date().toISOString(),
+                chat_id: this.chatId
+            })
+        }
 
         this.ws.onmessage = (event) => {
             try {
@@ -43,17 +66,43 @@ export class WebSocketChat {
                 this.messageCallback(data)
             } catch (error) {
                 console.error('Error parsing WebSocket message:', error)
+                this.messageCallback({
+                    type: 'error',
+                    error: 'Failed to parse message',
+                    timestamp: new Date().toISOString()
+                })
             }
         }
 
         this.ws.onclose = () => {
-            console.log('WebSocket connection closed')
-            // Attempt to reconnect after a delay
-            setTimeout(() => this.connect(), 5000)
+            this.isConnecting = false
+            this.messageCallback({
+                type: 'disconnect',
+                timestamp: new Date().toISOString(),
+                chat_id: this.chatId
+            })
+
+            // Implement exponential backoff for retries
+            if (this.retryCount < this.maxRetries) {
+                const backoffTime = Math.min(1000 * Math.pow(2, this.retryCount), 10000)
+                this.retryCount++
+                setTimeout(() => this.connect(), backoffTime)
+            } else {
+                this.messageCallback({
+                    type: 'error',
+                    error: 'Failed to establish WebSocket connection after multiple attempts',
+                    timestamp: new Date().toISOString()
+                })
+            }
         }
 
         this.ws.onerror = (error) => {
             console.error('WebSocket error:', error)
+            this.messageCallback({
+                type: 'error',
+                error: 'WebSocket connection error',
+                timestamp: new Date().toISOString()
+            })
         }
     }
 

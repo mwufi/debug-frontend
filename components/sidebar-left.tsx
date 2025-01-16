@@ -26,6 +26,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { getSidebarData } from "@/lib/getSidebarData"
+import { Separator } from "@/components/ui/separator"
 
 const { favorites, workspaces, teams } = await getSidebarData()
 
@@ -87,21 +88,19 @@ const data = {
   workspaces,
 }
 
-export function SidebarLeft({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
+export function SidebarLeft() {
   return (
-    <Sidebar className="border-r-0" {...props}>
+    <Sidebar>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
-        <NavMain items={data.navMain} />
       </SidebarHeader>
       <SidebarContent>
-        <NavFavorites favorites={data.favorites} />
-        <NavWorkspaces workspaces={data.workspaces} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={data.navMain} />
+        <Separator />
+        <NavFavorites />
+        <Separator />
+        <NavSecondary items={data.navSecondary} />
       </SidebarContent>
-      <SidebarRail />
     </Sidebar>
   )
 }
