@@ -5,7 +5,7 @@ export type Message = {
 }
 
 export type ChatEvent = {
-    type: 'connect' | 'disconnect' | 'message_received' | 'text_delta' | 'tool_use_called' | 'agent_joined' | 'agent_left' | 'convo-reset'
+    type: 'connect' | 'disconnect' | 'message_received' | 'text_delta' | 'tool_use_called' | 'agent_joined' | 'agent_left' | 'convo-reset' | 'error'
     timestamp: string
     chat_id?: string
     content?: string
@@ -14,6 +14,8 @@ export type ChatEvent = {
     name?: string
     id?: string
     args?: any
+    error?: string
+    details?: string
 }
 
 export class WebSocketChat {

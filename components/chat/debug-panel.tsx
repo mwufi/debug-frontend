@@ -31,6 +31,8 @@ function EventCard({ event, isCollapsed, onToggle }: { event: CollapsedEvent, is
                 return 'bg-blue-500'
             case 'text_delta':
                 return 'bg-gray-500'
+            case 'error':
+                return 'bg-red-600'
             default:
                 return 'bg-gray-500'
         }
@@ -74,6 +76,16 @@ function EventCard({ event, isCollapsed, onToggle }: { event: CollapsedEvent, is
                     <pre className="text-xs bg-muted p-2 rounded mt-1 overflow-x-auto">
                         {JSON.stringify(event.events[0].args, null, 2)}
                     </pre>
+                </div>
+            )}
+            {event.type === 'error' && (
+                <div className="mt-2">
+                    <div className="text-sm font-medium text-red-600">{event.events[0].error}</div>
+                    {event.events[0].details && (
+                        <pre className="text-xs bg-red-50 dark:bg-red-900/10 p-2 rounded mt-1 overflow-x-auto text-red-600 dark:text-red-400">
+                            {event.events[0].details}
+                        </pre>
+                    )}
                 </div>
             )}
             {event.events[0].agent_id && (

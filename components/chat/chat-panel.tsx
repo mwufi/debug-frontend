@@ -75,6 +75,14 @@ export function ChatPanel({ conversation }: ChatPanelProps) {
                 setMessages([])
                 toast.success('Conversation reset')
                 break
+            case 'error':
+                toast.error(event.error || 'An error occurred', {
+                    description: event.details,
+                    duration: 5000
+                })
+                setIsStreaming(false)
+                setHasAgent(false)
+                break
             case 'text_delta':
                 if (event.delta) {
                     currentMessageRef.current += event.delta
