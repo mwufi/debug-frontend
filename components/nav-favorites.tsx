@@ -19,6 +19,7 @@ export function NavFavorites() {
   const router = useRouter()
 
   useEffect(() => {
+    console.log('fetching chats')
     fetch('http://localhost:8000/chats')
       .then(res => res.json())
       .then(data => {
