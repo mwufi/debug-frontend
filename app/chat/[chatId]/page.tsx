@@ -1,3 +1,5 @@
+'use client'
+
 import { SidebarLeft } from "@/components/sidebar-left"
 import {
     Breadcrumb,
@@ -13,8 +15,42 @@ import {
 } from "@/components/ui/sidebar"
 import { ChatCard } from "@/components/chat/chat-card"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import { toast } from "sonner"
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+interface Message {
+    role: string
+    content: string
+    timestamp: string
+}
+
+interface Conversation {
+    id: string
+    messages: Message[]
+    started_at: string
+    last_message_at: string | null
+    total_messages: number
+}
+
+export default function ChatPage() {
+    const params = useParams()
+    const chatId = params.chatId as string
+    const [conversation, setConversation] = useState<Conversation | null>(null)
+
+    useEffect(() => {
+        // Fetch conversation data
+        fetch(`http://localhost:8000/chat/${chatId}`)
+            .then(res => res.json())
+            .then(data => {
+                setConversation(data)
+            })
+            .catch(err => {
+                toast.error("Failed to load conversation")
+                console.error(err)
+            })
+    }, [chatId])
+
     return (
         <SidebarProvider>
             <SidebarLeft />
@@ -27,7 +63,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             <BreadcrumbList>
                                 <BreadcrumbItem>
                                     <BreadcrumbPage className="line-clamp-1">
-                                        Chat
+                                        Chat {conversation?.total_messages ? `(${conversation.total_messages} messages)` : ''}
                                     </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
@@ -38,7 +74,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </div>
                 </header>
                 <div className="p-4">
-                    <ChatCard />
+                    <ChatCard conversation={conversation} />
                 </div>
             </SidebarInset>
         </SidebarProvider>

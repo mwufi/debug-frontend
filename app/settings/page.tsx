@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { useChatContext } from "@/lib/chat-context"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Search, Code2, Calculator, Database, Image } from "lucide-react"
@@ -61,10 +61,40 @@ export default function SettingsPage() {
     const [localSettings, setLocalSettings] = useState(settings)
     const router = useRouter()
 
-    const handleSave = () => {
-        updateSettings(localSettings)
-        toast.success("Settings saved successfully!")
-        router.push('/')
+    useEffect(() => {
+        // Fetch settings on component mount
+        fetch('http://localhost:8000/settings')
+            .then(res => res.json())
+            .then(data => {
+                setLocalSettings(data)
+                updateSettings(data)
+            })
+            .catch(err => {
+                toast.error("Failed to load settings")
+                console.error(err)
+            })
+    }, [])
+
+    const handleSave = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(localSettings)
+            })
+
+            if (!response.ok) throw new Error('Failed to save settings')
+
+            const updatedSettings = await response.json()
+            updateSettings(updatedSettings)
+            toast.success("Settings saved successfully!")
+            router.push('/')
+        } catch (error) {
+            toast.error("Failed to save settings")
+            console.error(error)
+        }
     }
 
     const toggleTool = (toolId: string) => {

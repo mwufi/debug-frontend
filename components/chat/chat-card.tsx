@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Edit2, Maximize2, Minimize2, MoreHorizontal, Settings } from "lucide-react"
 import { useState } from "react"
-import { ChatHistory } from "./chat-history"
 import { ChatPanel } from "./chat-panel"
 import { ChatProvider } from "@/lib/chat-context"
 import { useRouter } from "next/navigation"
+import { Message } from "@/lib/chat"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,7 +16,19 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export function ChatCard() {
+interface Conversation {
+    id: string
+    messages: Message[]
+    started_at: string
+    last_message_at: string | null
+    total_messages: number
+}
+
+interface ChatCardProps {
+    conversation: Conversation | null
+}
+
+export function ChatCard({ conversation }: ChatCardProps) {
     const [isExpanded, setIsExpanded] = useState(true)
     const router = useRouter()
 
@@ -29,7 +41,7 @@ export function ChatCard() {
                             <AvatarFallback>AI</AvatarFallback>
                         </Avatar>
                         <div>
-                            <h3 className="font-semibold">General Chat</h3>
+                            <h3 className="font-semibold">Chat {conversation?.total_messages ? `(${conversation.total_messages} messages)` : ''}</h3>
                             <p className="text-sm text-muted-foreground">Active</p>
                         </div>
                     </div>
@@ -67,7 +79,7 @@ export function ChatCard() {
                 {isExpanded && (
                     <CardContent className="p-0">
                         <div className="flex h-[calc(100vh-12rem)] flex-col">
-                            <ChatPanel showTestMessages={false} />
+                            <ChatPanel conversation={conversation} />
                         </div>
                     </CardContent>
                 )}
