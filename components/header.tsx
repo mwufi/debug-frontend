@@ -38,7 +38,7 @@ export function Header({ className, ...props }: HeaderProps) {
                         asChild
                     >
                         <Link href="/chat">
-                            <MessageSquare className="text-secondary h-[22px] w-[22px]" />
+                            <MessageSquare className="text-muted-foreground h-[22px] w-[22px]" />
                         </Link>
                     </Button>
                     <Button
@@ -48,7 +48,7 @@ export function Header({ className, ...props }: HeaderProps) {
                         asChild
                     >
                         <Link href="/search">
-                            <Search className="text-secondary h-[22px] w-[22px]" />
+                            <Search className="text-muted-foreground h-[22px] w-[22px]" />
                         </Link>
                     </Button>
                     <Button
@@ -58,7 +58,7 @@ export function Header({ className, ...props }: HeaderProps) {
                         asChild
                     >
                         <Link href="/ai">
-                            <Sparkles className="text-secondary h-[22px] w-[22px]" />
+                            <Sparkles className="text-muted-foreground h-[22px] w-[22px]" />
                         </Link>
                     </Button>
                 </div>
