@@ -5,7 +5,7 @@ import { UserMessage } from "./user-message"
 import { useAlexaChat } from "./alexa-chat-context"
 
 export function ConversationScrollView() {
-    const [messages] = useAlexaChat()
+    const { messages } = useAlexaChat()
 
     return (
         <div className="flex flex-col h-full relative items-center">

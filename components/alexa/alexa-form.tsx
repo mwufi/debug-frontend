@@ -2,9 +2,10 @@
 
 import { FormEvent, KeyboardEvent, useState } from "react"
 import { useAlexaChat } from "./alexa-chat-context"
+import { playMelodicNote, playRandomNote } from "@/lib/audio-utils"
 
 export function AlexaForm() {
-    const [_, sendUserMessage] = useAlexaChat()
+    const { sendUserMessage } = useAlexaChat()
     const [inputValue, setInputValue] = useState("")
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -16,6 +17,9 @@ export function AlexaForm() {
     }
 
     const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+        // Play the next note in the melodic sequence
+        playMelodicNote()
+
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
             const form = e.currentTarget.form
