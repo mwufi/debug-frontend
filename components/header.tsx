@@ -4,12 +4,23 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { MessageSquare, Search, Sparkles } from "lucide-react"
+import { useAlexaChat } from "@/components/alexa/alexa-chat-context"
 
 interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
     className?: string
 }
 
 export function Header({ className, ...props }: HeaderProps) {
+    const { wsSendMessage } = useAlexaChat()
+
+    const handleClearMessages = async () => {
+        try {
+            await wsSendMessage('clear_messages')
+        } catch (error) {
+            console.error('Failed to clear messages:', error)
+        }
+    }
+
     return (
         <div className={cn("w-full relative", className)} {...props}>
             <div className="h-24 sm:h-20 inset-x-0 top-0 absolute z-10 overflow-hidden pointer-events-none">
@@ -35,11 +46,9 @@ export function Header({ className, ...props }: HeaderProps) {
                         variant="ghost"
                         size="icon"
                         className="h-10 w-10 rounded-xl"
-                        asChild
+                        onClick={handleClearMessages}
                     >
-                        <Link href="/chat">
-                            <MessageSquare className="text-muted-foreground h-[22px] w-[22px]" />
-                        </Link>
+                        <MessageSquare className="text-muted-foreground h-[22px] w-[22px]" />
                     </Button>
                     <Button
                         variant="ghost"

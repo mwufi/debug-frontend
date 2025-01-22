@@ -21,6 +21,7 @@ interface AlexaChatContextType {
     wsConnected: boolean
     wsError: string | null
     systemPrompt: string
+    isLoading: boolean
 }
 
 const AlexaChatContext = createContext<AlexaChatContextType | null>(null)
@@ -32,9 +33,31 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
     const [wsError, setWsError] = useState<string | null>(null)
     const [isSystemPromptOpen, setIsSystemPromptOpen] = useState(false)
     const [systemPrompt, setSystemPrompt] = useState("")
+    const [isLoading, setIsLoading] = useState(true)
 
     // Add hotkey for system prompt
     useHotkeys('s', () => setIsSystemPromptOpen(true), [])
+
+    const loadMessages = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch('/api/chat');
+            if (!response.ok) {
+                throw new Error('Failed to load messages');
+            }
+            const data = await response.json();
+            setMessages(data.messages || []);
+            setSystemPrompt(data.system_prompt || "");
+        } catch (error) {
+            console.error('Error loading messages:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadMessages();
+    }, [loadMessages]);
 
     // Handle system prompt save
     const handleSystemPromptSave = useCallback(async (prompt: string) => {
@@ -68,18 +91,9 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
                 setSystemPrompt(message.prompt)
                 break
             case 'heartbeat':
-                // every 3s, we sync with backend
-                const { agent } = message.data
-                if (!agent) {
-                    console.log("no history data")
-                    break
-                }
-                if (agent.messages) {
-                    setMessages(agent.messages)
-                }
-                if (agent.system_prompt) {
-                    setSystemPrompt(agent.system_prompt)
-                }
+                break
+            case 'clear_messages':
+                setMessages([])
                 break
             case 'start':
                 console.log('Started message:', message.id)
@@ -221,14 +235,15 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
             wsSendMessage,
             wsConnected,
             wsError,
-            systemPrompt
+            systemPrompt,
+            isLoading,
         }}>
             {children}
             <SystemPromptModal
                 open={isSystemPromptOpen}
                 onOpenChange={setIsSystemPromptOpen}
-                initialPrompt={systemPrompt}
                 onSave={handleSystemPromptSave}
+                initialPrompt={systemPrompt}
             />
         </AlexaChatContext.Provider>
     )
