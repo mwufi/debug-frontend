@@ -18,7 +18,7 @@ export default function Home() {
                         </h1>
                     </div>
                     <div className="w-full flex flex-col gap-2 items-center">
-                        <AlexaForm />
+                        <AlexaForm homepage={true} />
                     </div>
                 </div>
             </main>

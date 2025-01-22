@@ -14,7 +14,7 @@ export interface Message {
 
 interface AlexaChatContextType {
     messages: Message[]
-    sendUserMessage: (content: string) => Promise<void>
+    sendUserMessage: (content: string, clearMessages: boolean) => Promise<void>
     switchChat: (chatId: string) => void
     currentChatId: string | null
     wsSendMessage: (type: string, data?: any) => Promise<void>
@@ -90,6 +90,9 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
                     }
                     return prev;
                 });
+                break
+            case 'tool_use':
+                console.log('Tool used:', message)
                 break
             case 'system_prompt':
                 setSystemPrompt(message.prompt)
@@ -182,7 +185,7 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
         }
     }, [handleWebSocketMessage]) // Add handleWebSocketMessage to dependencies
 
-    const sendUserMessage = useCallback(async (content: string) => {
+    const sendUserMessage = useCallback(async (content: string, clearMessages: boolean) => {
         const userMessage: Message = {
             id: crypto.randomUUID(),
             content,
@@ -197,14 +200,18 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
             timestamp: new Date().toISOString()
         }
 
-        setMessages(prev => [...prev, userMessage, assistantMessage])
+        if (clearMessages) {
+            setMessages(prev => [userMessage, assistantMessage])
+        } else {
+            setMessages(prev => [...prev, userMessage, assistantMessage])
+        }
 
         try {
             // Send message through WebSocket
             if (!wsRef.current) {
                 throw new Error('WebSocket connection not initialized')
             }
-            await wsRef.current.sendMessage('user_message', content)
+            await wsRef.current.sendMessage('user_message', { content, isNewConversation: clearMessages })
             setWsError(null)
         } catch (error) {
             setWsError(error instanceof Error ? error.message : 'Failed to send message')
@@ -227,7 +234,7 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
 
     const switchChat = useCallback((chatId: string) => {
         setCurrentChatId(chatId)
-        setMessages([]) // Clear messages when switching chats
+        setMessages(prev => []) // Clear messages when switching chats
     }, [])
 
     return (

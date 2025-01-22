@@ -3,16 +3,23 @@
 import { FormEvent, KeyboardEvent, useState } from "react"
 import { useAlexaChat } from "./alexa-chat-context"
 import { playMelodicNote, playRandomNote } from "@/lib/audio-utils"
+import { useRouter } from "next/navigation"
 
-export function AlexaForm() {
+export function AlexaForm({ homepage }: { homepage: boolean } = { homepage: false }) {
     const { sendUserMessage } = useAlexaChat()
     const [inputValue, setInputValue] = useState("")
+    const router = useRouter()
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!inputValue.trim()) return
 
-        await sendUserMessage(inputValue)
+        if (homepage) {
+            await sendUserMessage(inputValue, true)
+            router.push("/alexa/chat")
+        } else {
+            await sendUserMessage(inputValue, false)
+        }
         setInputValue("")
     }
 
