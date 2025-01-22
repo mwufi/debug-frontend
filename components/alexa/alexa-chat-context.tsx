@@ -5,12 +5,29 @@ import { WebSocketService } from "@/lib/websocket-service"
 import { useHotkeys } from "react-hotkeys-hook"
 import { SystemPromptModal } from "./system-prompt-modal"
 
-export interface Message {
+interface BaseMessage {
     id: string
-    content: string
-    role: 'user' | 'assistant'
     timestamp: string
 }
+
+interface UserMessage extends BaseMessage {
+    role: 'user'
+    content: string
+}
+
+interface AssistantMessage extends BaseMessage {
+    role: 'assistant'
+    content: string
+}
+
+interface ToolUseMessage extends BaseMessage {
+    role: 'tool_use'
+    tool: string
+    input: Record<string, any>
+    status: 'in_progress' | 'success' | 'failed'
+}
+
+export type Message = UserMessage | AssistantMessage | ToolUseMessage
 
 interface AlexaChatContextType {
     messages: Message[]
@@ -93,6 +110,14 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
                 break
             case 'tool_use':
                 console.log('Tool used:', message)
+                setMessages(prev => [...prev, {
+                    role: 'tool_use',
+                    id: message.id,
+                    tool: message.tool,
+                    input: message.input,
+                    status: "success",
+                    timestamp: message.timestamp
+                }])
                 break
             case 'system_prompt':
                 setSystemPrompt(message.prompt)
