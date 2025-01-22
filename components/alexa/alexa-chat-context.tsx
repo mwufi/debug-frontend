@@ -34,7 +34,7 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
     const [systemPrompt, setSystemPrompt] = useState("")
 
     // Add hotkey for system prompt
-    useHotkeys('Esc', () => setIsSystemPromptOpen(true), [])
+    useHotkeys('s', () => setIsSystemPromptOpen(true), [])
 
     // Handle system prompt save
     const handleSystemPromptSave = useCallback(async (prompt: string) => {
@@ -48,8 +48,6 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
 
     // Handle all WebSocket messages in one place
     const handleWebSocketMessage = useCallback((message: any) => {
-        console.log('WebSocket message received:', message)
-
         switch (message.type) {
             case 'text_delta':
                 // Update the last assistant message with the new delta
@@ -68,6 +66,20 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
                 break
             case 'system_prompt':
                 setSystemPrompt(message.prompt)
+                break
+            case 'heartbeat':
+                // every 3s, we sync with backend
+                const { agent } = message.data
+                if (!agent) {
+                    console.log("no history data")
+                    break
+                }
+                if (agent.messages) {
+                    setMessages(agent.messages)
+                }
+                if (agent.system_prompt) {
+                    setSystemPrompt(agent.system_prompt)
+                }
                 break
             case 'start':
                 console.log('Started message:', message.id)
