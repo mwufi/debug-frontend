@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
     Dialog,
     DialogContent,
@@ -25,6 +25,10 @@ export function SystemPromptModal({
     onSave,
 }: SystemPromptModalProps) {
     const [prompt, setPrompt] = useState(initialPrompt)
+
+    useEffect(() => {
+        setPrompt(initialPrompt)
+    }, [initialPrompt])
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

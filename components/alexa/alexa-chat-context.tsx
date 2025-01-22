@@ -36,7 +36,10 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true)
 
     // Add hotkey for system prompt
-    useHotkeys('s', () => setIsSystemPromptOpen(true), [])
+    useHotkeys('s', (event) => {
+        event.preventDefault()
+        setIsSystemPromptOpen(true)
+    }, [])
 
     const loadMessages = useCallback(async () => {
         try {
@@ -47,6 +50,7 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
             }
             const data = await response.json();
             setMessages(data.messages || []);
+            console.log("system prompt", data.system_prompt)
             setSystemPrompt(data.system_prompt || "");
         } catch (error) {
             console.error('Error loading messages:', error);
