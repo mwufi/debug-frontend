@@ -28,7 +28,7 @@ const actionIcons = {
 
 export function ActionButtons({ position, actions, timeElapsed }: ActionButtonsProps) {
     return (
-        <div className={`flex absolute -bottom-4 items-center gap-1 py-1 w-max opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 transition-opacity rounded-full text-xs ${position === 'start' ? 'start-0 md:start-3' : 'end-4'} action-buttons`}>
+        <div className={`flex absolute -bottom-4 items-center gap-1 py-1 w-max opacity-0 translate-y-1 group-focus-within:opacity-100 group-focus-within:translate-y-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-out rounded-full text-xs ${position === 'start' ? 'start-0 md:start-3' : 'end-4'} action-buttons`}>
             {actions.map((action) => {
                 const Icon = actionIcons[action]
                 return (
