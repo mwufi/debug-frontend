@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react"
 import { WebSocketService } from "@/lib/websocket-service"
+import { useHotkeys } from "react-hotkeys-hook"
+import { SystemPromptModal } from "./system-prompt-modal"
 
 export interface Message {
     id: string
@@ -18,6 +20,7 @@ interface AlexaChatContextType {
     wsSendMessage: (type: string, data?: any) => Promise<void>
     wsConnected: boolean
     wsError: string | null
+    systemPrompt: string
 }
 
 const AlexaChatContext = createContext<AlexaChatContextType | null>(null)
@@ -27,6 +30,21 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
     const [currentChatId, setCurrentChatId] = useState<string | null>(null)
     const [wsConnected, setWsConnected] = useState(false)
     const [wsError, setWsError] = useState<string | null>(null)
+    const [isSystemPromptOpen, setIsSystemPromptOpen] = useState(false)
+    const [systemPrompt, setSystemPrompt] = useState("")
+
+    // Add hotkey for system prompt
+    useHotkeys('Esc', () => setIsSystemPromptOpen(true), [])
+
+    // Handle system prompt save
+    const handleSystemPromptSave = useCallback(async (prompt: string) => {
+        try {
+            await wsRef.current?.sendMessage('set_system_prompt', prompt)
+            setSystemPrompt(prompt)
+        } catch (error) {
+            console.error('Failed to update system prompt:', error)
+        }
+    }, [])
 
     // Handle all WebSocket messages in one place
     const handleWebSocketMessage = useCallback((message: any) => {
@@ -47,6 +65,9 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
                     }
                     return prev;
                 });
+                break
+            case 'system_prompt':
+                setSystemPrompt(message.prompt)
                 break
             case 'start':
                 console.log('Started message:', message.id)
@@ -187,9 +208,16 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
             currentChatId,
             wsSendMessage,
             wsConnected,
-            wsError
+            wsError,
+            systemPrompt
         }}>
             {children}
+            <SystemPromptModal
+                open={isSystemPromptOpen}
+                onOpenChange={setIsSystemPromptOpen}
+                initialPrompt={systemPrompt}
+                onSave={handleSystemPromptSave}
+            />
         </AlexaChatContext.Provider>
     )
 }
