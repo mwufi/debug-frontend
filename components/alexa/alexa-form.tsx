@@ -1,16 +1,18 @@
 "use client"
 
-import { FormEvent, KeyboardEvent } from "react"
+import { FormEvent, KeyboardEvent, useState } from "react"
+import { useAlexaChat } from "./alexa-chat-context"
 
 export function AlexaForm() {
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const [_, sendUserMessage] = useAlexaChat()
+    const [inputValue, setInputValue] = useState("")
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const form = e.currentTarget
-        const textarea = form.querySelector('textarea')
-        if (textarea) {
-            console.log('Form submitted:', textarea.value)
-            textarea.value = '' // Clear the input after submission
-        }
+        if (!inputValue.trim()) return
+
+        await sendUserMessage(inputValue)
+        setInputValue("")
     }
 
     const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -33,6 +35,8 @@ export function AlexaForm() {
                             style={{ resize: "none", height: "66px" }}
                             placeholder="Generate an image for me"
                             onKeyDown={handleKeyDown}
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
                         />
                     </div>
                 </div>

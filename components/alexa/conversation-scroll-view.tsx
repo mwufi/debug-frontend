@@ -2,30 +2,10 @@
 
 import { AlexaMessage } from "./alexa-message"
 import { UserMessage } from "./user-message"
-
-interface Message {
-    id: string
-    content: string
-    role: 'user' | 'assistant'
-    timestamp: string
-}
+import { useAlexaChat } from "./alexa-chat-context"
 
 export function ConversationScrollView() {
-    // This would typically come from a state management solution or API
-    const messages: Message[] = [
-        {
-            id: '1',
-            content: 'Hello! How can I help you today?',
-            role: 'assistant',
-            timestamp: new Date().toISOString()
-        },
-        {
-            id: '2',
-            content: 'Can you tell me a story?',
-            role: 'user',
-            timestamp: new Date().toISOString()
-        }
-    ]
+    const [messages] = useAlexaChat()
 
     return (
         <div className="flex flex-col h-full relative items-center">
