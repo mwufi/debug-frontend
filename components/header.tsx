@@ -18,7 +18,7 @@ export function Header({ className, ...props }: HeaderProps) {
             <div className="w-full p-3 absolute top-0 h-16 flex flex-row justify-center items-center z-10">
                 <div className="absolute start-1 flex flex-row items-start">
                     <Link
-                        href="/"
+                        href="/alexa"
                         className="ms-2 me-[0.5] rounded-lg focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     >
                         <div className="text-2xl font-bold tracking-tight hover:opacity-90 transition-opacity">

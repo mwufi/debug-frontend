@@ -10,7 +10,7 @@ export function ConversationScrollView() {
     return (
         <div className="flex flex-col h-full relative items-center">
             <div className="w-full h-full overflow-y-auto flex flex-col items-center px-5 pb-[157px]">
-                <div className="relative w-full flex flex-col items-center pt-16 pb-4">
+                <div className="relative w-full flex flex-col items-center pt-20 pb-4">
                     {messages.map((message) => (
                         message.role === 'assistant' ? (
                             <AlexaMessage
