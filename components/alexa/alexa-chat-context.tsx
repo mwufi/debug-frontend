@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react"
+import { WebSocketService } from "@/lib/websocket-service"
 
 export interface Message {
     id: string
@@ -14,6 +15,9 @@ interface AlexaChatContextType {
     sendUserMessage: (content: string) => Promise<void>
     switchChat: (chatId: string) => void
     currentChatId: string | null
+    wsSendMessage: (type: string, data?: any) => Promise<void>
+    wsConnected: boolean
+    wsError: string | null
 }
 
 const AlexaChatContext = createContext<AlexaChatContextType | null>(null)
@@ -21,6 +25,100 @@ const AlexaChatContext = createContext<AlexaChatContextType | null>(null)
 export function AlexaChatProvider({ children }: { children: ReactNode }) {
     const [messages, setMessages] = useState<Message[]>([])
     const [currentChatId, setCurrentChatId] = useState<string | null>(null)
+    const [wsConnected, setWsConnected] = useState(false)
+    const [wsError, setWsError] = useState<string | null>(null)
+
+    // Handle all WebSocket messages in one place
+    const handleWebSocketMessage = useCallback((message: any) => {
+        console.log('WebSocket message received:', message)
+
+        switch (message.type) {
+            case 'text_delta':
+                // Handle streaming text updates
+                console.log('Text delta:', message.data)
+                break
+            case 'start':
+                console.log('Started message:', message.id)
+                break
+            case 'stop':
+                console.log('Stopped message:', message.id)
+                break
+            case 'error':
+                console.error('WebSocket error:', message.data)
+                setWsError(message.data)
+                break
+            case 'ping':
+                // Respond to ping with pong
+                wsRef.current?.sendMessage('pong')
+                break
+            case 'pong':
+                // Server responded to our ping
+                console.debug('Received pong from server')
+                break
+            case 'raw':
+                // Handle raw non-JSON messages
+                console.debug('Received raw message:', message.data)
+                break
+            default:
+                // Handle any other message type
+                console.debug('Received message of type:', message.type, message)
+        }
+    }, [])
+
+    const wsRef = useRef<WebSocketService>(new WebSocketService('ws://127.0.0.1:8000/ws', handleWebSocketMessage))
+
+    useEffect(() => {
+        // Initialize WebSocket service
+        const ws = wsRef.current
+        if (!ws) return
+
+        let reconnectInterval: NodeJS.Timeout | null = null
+
+        const connectWithRetry = async () => {
+            try {
+                await ws.connect()
+                // Clear reconnect interval if connection successful
+                if (reconnectInterval) {
+                    clearInterval(reconnectInterval)
+                    reconnectInterval = null
+                }
+                setWsError(null)
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Failed to connect to WebSocket'
+                setWsError(errorMessage)
+                // Start reconnection attempts if not already trying
+                if (!reconnectInterval) {
+                    reconnectInterval = setInterval(connectWithRetry, 3000)
+                }
+            }
+        }
+
+        // Initial connection attempt
+        connectWithRetry()
+
+        // Update connection status and handle reconnection
+        const checkConnection = setInterval(() => {
+            if (ws) {
+                const isConnected = ws.isConnected
+                setWsConnected(isConnected)
+
+                // If disconnected and not already trying to reconnect, start reconnection attempts
+                if (!isConnected && !reconnectInterval) {
+                    reconnectInterval = setInterval(connectWithRetry, 3000)
+                }
+            }
+        }, 1000)
+
+        return () => {
+            clearInterval(checkConnection)
+            if (reconnectInterval) {
+                clearInterval(reconnectInterval)
+            }
+            if (ws) {
+                ws.disconnect()
+            }
+        }
+    }, [handleWebSocketMessage]) // Add handleWebSocketMessage to dependencies
 
     const sendUserMessage = useCallback(async (content: string) => {
         const userMessage: Message = {
@@ -32,24 +130,35 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
 
         setMessages(prev => [...prev, userMessage])
 
-        // TODO: Implement actual API call here
-        // For now, simulate a response
-        const assistantMessage: Message = {
-            id: crypto.randomUUID(),
-            content: "This is a simulated response. Replace with actual API integration.",
-            role: 'assistant',
-            timestamp: new Date().toISOString()
+        try {
+            // Send message through WebSocket
+            if (!wsRef.current) {
+                throw new Error('WebSocket connection not initialized')
+            }
+            await wsRef.current.sendMessage('user_message', content)
+            setWsError(null)
+        } catch (error) {
+            setWsError(error instanceof Error ? error.message : 'Failed to send message')
+            throw error
         }
+    }, [])
 
-        setTimeout(() => {
-            setMessages(prev => [...prev, assistantMessage])
-        }, 1000)
+    const wsSendMessage = useCallback(async (type: string, data?: any) => {
+        try {
+            if (!wsRef.current) {
+                throw new Error('WebSocket connection not initialized')
+            }
+            await wsRef.current.sendMessage(type, data)
+            setWsError(null)
+        } catch (error) {
+            setWsError(error instanceof Error ? error.message : 'Failed to send message')
+            throw error
+        }
     }, [])
 
     const switchChat = useCallback((chatId: string) => {
         setCurrentChatId(chatId)
         setMessages([]) // Clear messages when switching chats
-        // TODO: Fetch messages for the new chat ID
     }, [])
 
     return (
@@ -57,7 +166,10 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
             messages,
             sendUserMessage,
             switchChat,
-            currentChatId
+            currentChatId,
+            wsSendMessage,
+            wsConnected,
+            wsError
         }}>
             {children}
         </AlexaChatContext.Provider>
@@ -69,5 +181,5 @@ export function useAlexaChat() {
     if (!context) {
         throw new Error("useAlexaChat must be used within an AlexaChatProvider")
     }
-    return [context.messages, context.sendUserMessage, context.switchChat] as const
+    return context
 } 
