@@ -34,8 +34,19 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
 
         switch (message.type) {
             case 'text_delta':
-                // Handle streaming text updates
-                console.log('Text delta:', message.data)
+                // Update the last assistant message with the new delta
+                setMessages(prev => {
+                    const lastMessage = prev[prev.length - 1];
+                    if (lastMessage && lastMessage.role === 'assistant') {
+                        const updatedMessages = [...prev];
+                        updatedMessages[updatedMessages.length - 1] = {
+                            ...lastMessage,
+                            content: lastMessage.content + message.delta
+                        };
+                        return updatedMessages;
+                    }
+                    return prev;
+                });
                 break
             case 'start':
                 console.log('Started message:', message.id)
@@ -128,7 +139,14 @@ export function AlexaChatProvider({ children }: { children: ReactNode }) {
             timestamp: new Date().toISOString()
         }
 
-        setMessages(prev => [...prev, userMessage])
+        const assistantMessage: Message = {
+            id: crypto.randomUUID(),
+            content: '',
+            role: 'assistant',
+            timestamp: new Date().toISOString()
+        }
+
+        setMessages(prev => [...prev, userMessage, assistantMessage])
 
         try {
             // Send message through WebSocket

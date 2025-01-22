@@ -18,7 +18,7 @@ export function AlexaForm() {
 
     const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
         // Play the next note in the melodic sequence
-        playMelodicNote()
+        // playMelodicNote()
 
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
