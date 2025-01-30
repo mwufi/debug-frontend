@@ -11,6 +11,15 @@ export default function Home() {
   const [componentCode, setComponentCode] = useState(`
 const Counter = (props) => {
   const [count, setCount] = React.useState(0);
+  const [previewData, setPreviewData] = React.useState("");
+
+  React.useEffect(() => {
+    fetch("/api/preview_component")
+      .then(response => response.text())
+      .then(data => setPreviewData(data))
+      .catch(error => console.error('Error fetching preview:', error));
+  }, []);
+
   return (
     <div className="space-y-4">
       <h3 className="text-xl font-semibold bg-primary text-primary-foreground p-4 rounded-lg">
@@ -21,11 +30,15 @@ const Counter = (props) => {
         onClick={() => setCount(c => c + 1)}
       >
         Increment
-      </button><Card>
-          <CardHeader>
-            <CardTitle>Interactive Component</CardTitle>
-          </CardHeader>
-          </Card>
+      </button>
+      <Card>
+        <CardHeader>
+          <CardTitle>Preview Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {previewData}
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -51,7 +64,7 @@ render(<Counter label="Counter" />);
             <CardTitle>Interactive Component</CardTitle>
           </CardHeader>
           <CardContent>
-            <DynamicComponent code={componentCode} scope={{ Card, CardHeader, CardTitle }} />
+            <DynamicComponent code={componentCode} scope={{ Card, CardHeader, CardTitle, CardContent }} />
           </CardContent>
         </Card>
       </div>
